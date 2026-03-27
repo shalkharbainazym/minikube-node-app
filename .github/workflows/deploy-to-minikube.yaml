@@ -22,9 +22,19 @@ jobs:
         docker build -t node-app:latest .
 
     - name: Deploy to Kubernetes
-      run: kubectl apply -f k8s-node-app.yaml
+      run: |
+        # Файлды қолдану
+        kubectl apply -f k8s-node-app.yaml
+        
+        # МАҢЫЗДЫ: Pod-тың толық қосылуын 90 секундқа дейін күту
+        echo "Waiting for pod to be ready..."
+        kubectl wait --for=condition=ready pod -l app=nodejs-app --timeout=90s
+        
+        # Статусты тексеру (лог үшін)
+        kubectl get pods
 
     - name: Check service
       run: |
         minikube service list
+        # Сервис сілтемесін алу
         minikube service nodejs-app --url
